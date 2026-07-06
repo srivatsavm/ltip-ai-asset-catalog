@@ -1,0 +1,45 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-getadvocatecorrespondence
+  displayName: Claims.GetAdvocateCorrespondence
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: Read
+  description: Correspondence API / Document API
+  allowedSkills:
+  - Claims.EligibilityAndLiabilityValidation
+  - Claims.ComplaintAndRemediationValidation
+  inputData: claimId; dateRangeStart; dateRangeEnd
+  outputData: 'advocateRecords: recordId; recordDate; party; topic; status; outstandingActions; sourceReference'
+  backendApiMappings:
+  - apiName: Correspondence API / Document API
+    candidateEndpointOrOperation: GET /claims/{claimId}/advocate-correspondence
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
