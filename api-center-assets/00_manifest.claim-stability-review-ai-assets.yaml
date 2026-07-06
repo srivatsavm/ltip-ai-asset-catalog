@@ -1,0 +1,83 @@
+apiVersion: aia.aiassets/v1
+kind: AssetPackageManifest
+metadata:
+  name: claim-stability-review-ai-assets
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+summary:
+  agentCount: 1
+  skillCount: 7
+  mcpServerCount: 5
+  toolCount: 57
+  fileCount: 72
+files:
+- agent.claim-stability-review-agent.yaml
+- skill.claims-dataintegrityreview.yaml
+- skill.claims-eligibilityandliabilityvalidation.yaml
+- skill.claims-returntoworkassessment.yaml
+- skill.claims-investigationandundisclosedworkassessment.yaml
+- skill.claims-complaintandremediationvalidation.yaml
+- skill.claims-financialreconciliationvalidation.yaml
+- skill.claims-reinsuranceandhandovervalidation.yaml
+- tool.claims-generatehandoversummary.yaml
+- tool.claims-getadvocatecorrespondence.yaml
+- tool.claims-getassessmenthistory.yaml
+- tool.claims-getbpsassessment.yaml
+- tool.claims-getclaimaudithistory.yaml
+- tool.claims-getclaimdetails.yaml
+- tool.claims-getclaimduration.yaml
+- tool.claims-getclaimkeydates.yaml
+- tool.claims-getclaimperiod.yaml
+- tool.claims-getcomplainthistory.yaml
+- tool.claims-getcomplaintoutcomeletters.yaml
+- tool.claims-getdecisionletters.yaml
+- tool.claims-getdeclaredworkstatus.yaml
+- tool.claims-getdisputerecords.yaml
+- tool.claims-getfunctionalcapacityassessment.yaml
+- tool.claims-gethandovernotes.yaml
+- tool.claims-getliabilityreviewdocuments.yaml
+- tool.claims-getmedicalevidence.yaml
+- tool.claims-getnoticeofassessmentdocuments.yaml
+- tool.claims-getoccupationdetails.yaml
+- tool.claims-getopentasks.yaml
+- tool.claims-getrehabhistory.yaml
+- tool.claims-getreinsurancehistory.yaml
+- tool.claims-getremediationactions.yaml
+- tool.claims-getspecialhandlinginstructions.yaml
+- tool.claims-gettpadetails.yaml
+- tool.claims-gettaxreturndocuments.yaml
+- tool.claims-gettreatingdoctorreports.yaml
+- tool.claims-getvocationalassessment.yaml
+- tool.claims-searchclaimnotes.yaml
+- tool.claims-updateclaimfield.yaml
+- tool.customer-getcommunicationpreferences.yaml
+- tool.customer-getcustomercontactprofile.yaml
+- tool.customer-getcustomerprofile.yaml
+- tool.investigation-addresssearch.yaml
+- tool.investigation-businessactivitysearch.yaml
+- tool.investigation-emailsearch.yaml
+- tool.investigation-googlemapssearch.yaml
+- tool.investigation-internetsearch.yaml
+- tool.investigation-phonenumbersearch.yaml
+- tool.investigation-searchabnlookup.yaml
+- tool.investigation-searchequifax.yaml
+- tool.investigation-socialmediasearch.yaml
+- tool.payments-getdisbursalstatus.yaml
+- tool.payments-getoverpaymentrecords.yaml
+- tool.payments-getpaymentadjustmenthistory.yaml
+- tool.payments-getpaymenthistory.yaml
+- tool.payments-getpaymentstatus.yaml
+- tool.payments-getreconciliationrecords.yaml
+- tool.payments-getrecoveryplan.yaml
+- tool.payments-getscheduledpayments.yaml
+- tool.payments-getunderpaymentrecords.yaml
+- tool.payments-schedulepayment.yaml
+- tool.policy-getbenefitdefinition.yaml
+- tool.policy-geteligibilitydefinitions.yaml
+- tool.policy-getoccupationdefinition.yaml
+- tool.policy-getpolicyterms.yaml
+- mcp-server.claims-mcp-server.yaml
+- mcp-server.policy-mcp-server.yaml
+- mcp-server.payments-mcp-server.yaml
+- mcp-server.investigation-mcp-server.yaml
+- mcp-server.customer-communication-mcp-server.yaml
+- api-inventory.claim-stability-review-template.yaml
