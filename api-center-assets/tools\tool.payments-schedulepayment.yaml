@@ -1,0 +1,47 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: payments-schedulepayment
+  displayName: Payments.SchedulePayment
+  domain: Payments
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: payments-mcp-server
+  mode: WriteRestricted
+  description: Payments API
+  allowedSkills:
+  - Claims.DataIntegrityReview
+  inputData: claimId; amount; paymentDate; paymentReason; approvalReference
+  outputData: scheduledPaymentId; status; approvalRequired; auditReference
+  backendApiMappings:
+  - apiName: Payments API
+    candidateEndpointOrOperation: POST /payments/claims/{claimId}/scheduled
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - humanApprovalRequired
+  - roleBasedAuthorityValidation
+  - beforeAfterAudit
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
