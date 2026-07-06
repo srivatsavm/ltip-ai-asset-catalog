@@ -1,0 +1,45 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-getopentasks
+  displayName: Claims.GetOpenTasks
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: Read
+  description: Case Task API
+  allowedSkills:
+  - Claims.EligibilityAndLiabilityValidation
+  - Claims.ComplaintAndRemediationValidation
+  inputData: claimId; taskCategoryFilter[] optional; status=open
+  outputData: 'openTasks: taskId; taskType; description; owner; dueDate; status; priority; sourceReference'
+  backendApiMappings:
+  - apiName: Case Task API
+    candidateEndpointOrOperation: GET /claims/{claimId}/tasks?status=open
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
