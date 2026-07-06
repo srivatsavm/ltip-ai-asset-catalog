@@ -1,0 +1,48 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-searchclaimnotes
+  displayName: Claims.SearchClaimNotes
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: ReadSearch
+  description: Claim Notes Search API
+  allowedSkills:
+  - Claims.EligibilityAndLiabilityValidation
+  - Claims.ReturnToWorkAssessment
+  - Claims.ComplaintAndRemediationValidation
+  - Claims.FinancialReconciliationValidation
+  - Claims.ReinsuranceAndHandoverValidation
+  inputData: claimId; searchTerms[]; dateRangeStart; dateRangeEnd; maxResults
+  outputData: 'matchingNotes: noteId; noteDate; author; matchedTerms; noteSnippet; noteCategory; sourceReference; totalMatches'
+  backendApiMappings:
+  - apiName: Claim Notes Search API
+    candidateEndpointOrOperation: POST /claims/{claimId}/notes/search
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
