@@ -1,0 +1,83 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-investigationandundisclosedworkassessment
+  displayName: Claims.InvestigationAndUndisclosedWorkAssessment
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Identify indicators of undisclosed work, business activity, inconsistent capacity or further investigation need.
+  businessQuestion: Is there evidence of undisclosed employment, business activity or inconsistent capacity that prevents
+    transfer?
+  riskLevel: Very High
+  requiredTools:
+  - Claims.GetClaimPeriod
+  - Claims.GetDeclaredWorkStatus
+  - Investigation.SearchABNLookup
+  - Investigation.SearchEquifax
+  - Investigation.InternetSearch
+  optionalTools:
+  - Customer.GetCustomerProfile
+  - Claims.GetTaxReturnDocuments
+  - Claims.GetNoticeOfAssessmentDocuments
+  - Investigation.BusinessActivitySearch
+  - Investigation.AddressSearch
+  - Investigation.PhoneNumberSearch
+  - Investigation.EmailSearch
+  - Investigation.SocialMediaSearch
+  - Investigation.GoogleMapsSearch
+  inputs:
+    claimId: string
+    customerId: string
+    customerIdentifiers: object
+    claimPeriod: object
+    searchPurpose: string
+  outputs:
+    status: Pass|Fail|FurtherInvestigationRequired|InsufficientEvidence
+    undisclosedWorkIndicator: string
+    businessActivityIndicator: string
+    inconsistencyFindings: array
+    recommendedInvestigationActions: array
+    searchAuditIds: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve claim period and declared work status.
+  - Perform authorised external searches.
+  - Compare findings to claim period and declarations.
+  - Treat external findings as indicators requiring human review.
+  - Return pass/further investigation/fail/insufficient evidence.
+  promptTemplate: Perform investigation screening using authorised internal and external source results only. Do not make
+    automated adverse findings. Flag concerns for human review.
+  decisionCriteria:
+    pass:
+    - No relevant external indicators
+    - No contradiction with claim evidence
+    furtherInvestigationRequired:
+    - Possible ABN/Equifax/business/social indicator
+    - Partial identity match
+    fail:
+    - Strong corroborated evidence exists, subject to human review
+    insufficientEvidence:
+    - Required search unavailable or identifiers insufficient
+  allowedMcpServers:
+  - claims-mcp-server
+  - customer-communication-mcp-server
+  - investigation-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
