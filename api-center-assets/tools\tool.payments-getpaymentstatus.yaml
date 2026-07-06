@@ -1,0 +1,44 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: payments-getpaymentstatus
+  displayName: Payments.GetPaymentStatus
+  domain: Payments
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: payments-mcp-server
+  mode: Read
+  description: Payments API
+  allowedSkills:
+  - Claims.DataIntegrityReview
+  inputData: claimId; asAtDate
+  outputData: paymentStatus; lastPaymentDate; nextScheduledPaymentDate; arrearsDetected; issueDescription; sourceReference
+  backendApiMappings:
+  - apiName: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/status?asAtDate={date}
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
