@@ -1,0 +1,49 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: investigation-internetsearch
+  displayName: Investigation.InternetSearch
+  domain: Investigation
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: investigation-mcp-server
+  mode: ExternalSearch
+  description: Enterprise Search Adapter API
+  allowedSkills:
+  - Claims.InvestigationAndUndisclosedWorkAssessment
+  inputData: searchTerms[]; claimId; searchPurpose; maxResults
+  outputData: 'searchResults: title; url; snippet; resultType; relevanceScore; retrievedAt; searchAuditId'
+  backendApiMappings:
+  - apiName: Enterprise Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/web/search
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - searchPurposeRequired
+  - searchTermsLogged
+  - sourceUrlsLogged
+  - humanReviewForAdverseIndicators
+  - noAutomatedAdverseDecision
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
