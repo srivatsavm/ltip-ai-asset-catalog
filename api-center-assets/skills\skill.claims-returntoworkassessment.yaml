@@ -1,0 +1,81 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-returntoworkassessment
+  displayName: Claims.ReturnToWorkAssessment
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Assess whether return-to-work avenues are exhausted and whether ongoing restrictions are stable for the foreseeable
+    future.
+  businessQuestion: Have reasonable return-to-work avenues been exhausted and does evidence support stable ongoing incapacity?
+  riskLevel: High
+  requiredTools:
+  - Claims.GetMedicalEvidence
+  - Claims.GetRehabHistory
+  - Claims.GetClaimDuration
+  - Claims.GetOccupationDetails
+  - Policy.GetOccupationDefinition
+  - Policy.GetBenefitDefinition
+  optionalTools:
+  - Claims.GetFunctionalCapacityAssessment
+  - Claims.GetTreatingDoctorReports
+  - Claims.GetVocationalAssessment
+  - Claims.GetBPSAssessment
+  - Customer.GetCustomerProfile
+  - Claims.SearchClaimNotes
+  inputs:
+    claimId: string
+    policyId: string
+    customerId: string
+    reviewAsAtDate: date
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    rtwExhaustedStatus: Yes|No|Unknown
+    medicalStabilityAssessment: string
+    rehabExhaustionStatus: string
+    keyLimitations: array
+    outstandingRTWActions: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve medical evidence.
+  - Retrieve rehab history.
+  - Retrieve occupation details and policy occupation definition.
+  - Compare restrictions with occupation requirements.
+  - Determine whether additional RTW/rehab actions remain.
+  - Assess foreseeable stability.
+  promptTemplate: Perform RTW exhaustion assessment using only supplied medical, rehab, occupation and policy evidence. Do
+    not infer medical facts or unstated policy rules.
+  decisionCriteria:
+    pass:
+    - Restrictions supported by evidence
+    - Rehab/wellbeing options considered or exhausted
+    - Limitations likely to persist
+    fail:
+    - RTW or rehab opportunity remains
+    - Occupation assessment incomplete
+    - Evidence inconsistent
+    insufficientEvidence:
+    - Medical, rehab, occupation or policy definition unavailable
+  allowedMcpServers:
+  - claims-mcp-server
+  - customer-communication-mcp-server
+  - policy-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
