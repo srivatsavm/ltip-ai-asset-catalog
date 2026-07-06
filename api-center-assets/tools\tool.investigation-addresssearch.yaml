@@ -1,0 +1,49 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: investigation-addresssearch
+  displayName: Investigation.AddressSearch
+  domain: Investigation
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: investigation-mcp-server
+  mode: ExternalSearch
+  description: Address Search Adapter API
+  allowedSkills:
+  - Claims.InvestigationAndUndisclosedWorkAssessment
+  inputData: address; postcode; searchPurpose
+  outputData: 'addressFindings: findingType; description; url; confidenceScore; searchAuditId'
+  backendApiMappings:
+  - apiName: Address Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/address/search
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - searchPurposeRequired
+  - searchTermsLogged
+  - sourceUrlsLogged
+  - humanReviewForAdverseIndicators
+  - noAutomatedAdverseDecision
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
