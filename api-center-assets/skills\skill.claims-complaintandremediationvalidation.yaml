@@ -1,0 +1,73 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-complaintandremediationvalidation
+  displayName: Claims.ComplaintAndRemediationValidation
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Validate complaints, advocate matters, dispute actions and remediation obligations are completed.
+  businessQuestion: Are all complaints, advocate matters and remediations completed with no outstanding obligations?
+  riskLevel: High
+  requiredTools:
+  - Claims.GetComplaintHistory
+  - Claims.SearchClaimNotes
+  - Claims.GetOpenTasks
+  optionalTools:
+  - Claims.GetRemediationActions
+  - Claims.GetAdvocateCorrespondence
+  - Claims.GetComplaintOutcomeLetters
+  - Claims.GetDisputeRecords
+  inputs:
+    claimId: string
+    customerId: string
+    reviewAsAtDate: date
+    searchTerms:
+    - complaint
+    - advocate
+    - remediation
+    - dispute
+    - escalation
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    complaintClosureStatus: string
+    remediationClosureStatus: string
+    outstandingComplaintActions: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve complaint history.
+  - Search notes for complaint/remediation/advocate/dispute.
+  - Retrieve open tasks.
+  - Validate closure and remediation evidence.
+  - Return readiness status.
+  promptTemplate: Validate complaint and remediation readiness using only complaint records, notes, tasks and outcome evidence.
+    Do not assume closure without source evidence.
+  decisionCriteria:
+    pass:
+    - All complaints closed
+    - Remediations complete or not applicable
+    - No open related tasks
+    fail:
+    - Open complaint/remediation/dispute/advocate action
+    insufficientEvidence:
+    - Complaint or task records unavailable
+  allowedMcpServers:
+  - claims-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
