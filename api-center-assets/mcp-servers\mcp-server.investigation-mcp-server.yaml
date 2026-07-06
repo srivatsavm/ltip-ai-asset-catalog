@@ -1,0 +1,40 @@
+apiVersion: aia.aiassets/v1
+kind: McpServer
+metadata:
+  name: investigation-mcp-server
+  displayName: Investigation MCP Server
+  domain: Investigation
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  endpoint: https://<apim-host>/mcp/investigation
+  recommendedRuntime: Custom Azure Function App or Container App
+  owner: Claims Investigation / Risk Technology
+  classification: Restricted - External Search / PII
+  authentication: Microsoft Entra ID / Managed Identity
+  frontDoor: Azure API Management
+  networking: Private endpoint preferred; public ingress only via APIM where required
+  tools:
+  - Investigation.SearchABNLookup
+  - Investigation.SearchEquifax
+  - Investigation.InternetSearch
+  - Investigation.BusinessActivitySearch
+  - Investigation.AddressSearch
+  - Investigation.PhoneNumberSearch
+  - Investigation.EmailSearch
+  - Investigation.SocialMediaSearch
+  - Investigation.GoogleMapsSearch
+  auditAndObservability:
+    applicationInsights: true
+    logAnalytics: true
+    auditEvents:
+    - toolInvocationStart
+    - toolInvocationComplete
+    - accessDenied
+    - backendFailure
+  deploymentValidation:
+  - All tools have input/output contracts
+  - All tools have allowedSkills
+  - External tools enforce human review
+  - Write tools require approval controls
