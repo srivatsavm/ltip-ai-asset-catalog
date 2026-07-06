@@ -1,0 +1,500 @@
+apiVersion: aia.aiassets/v1
+kind: ApiInventoryMappingTemplate
+metadata:
+  name: claim-stability-review-api-inventory-template
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  usage: Map existing API inventory to MCP tool requirements. Populate actual API names, owners, endpoints and gaps before
+    registration.
+  columns:
+  - tool
+  - candidateApi
+  - candidateEndpoint
+  - inputDataRequired
+  - outputDataRequired
+  - existingApiName
+  - existingEndpoint
+  - apiOwner
+  - apimProduct
+  - apiCenterAsset
+  - gapActionRequired
+  mappings:
+  - tool: Claims.GenerateHandoverSummary
+    owningMcpServer: claims-mcp-server
+    candidateApi: Optional Handover Draft API
+    candidateEndpointOrOperation: Optional POST /claims/{claimId}/handover-summary/draft
+    inputDataRequired: claimId; skillFindings[]; evidenceReferences[]; approvalReference optional if persisting
+    outputDataRequired: handoverSummary; criticalInformation[]; outstandingActions[]; sourceReferences[]; draftId optional
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.GetAdvocateCorrespondence
+    owningMcpServer: claims-mcp-server
+    candidateApi: Correspondence API / Document API
+    candidateEndpointOrOperation: GET /claims/{claimId}/advocate-correspondence
+    inputDataRequired: claimId; dateRangeStart; dateRangeEnd
+    outputDataRequired: 'advocateRecords: recordId; recordDate; party; topic; status; outstandingActions; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetAssessmentHistory
+    owningMcpServer: claims-mcp-server
+    candidateApi: Assessment API + Decision Letter API + Document API
+    candidateEndpointOrOperation: GET /claims/{claimId}/assessments; GET /claims/{claimId}/decision-letters; GET /documents?claimId={claimId}&type=assessment
+    inputDataRequired: claimId; includeDocuments flag; dateRange optional
+    outputDataRequired: 'assessments: assessmentId; assessmentDate; assessmentType; decision; rationale; assessor; relatedDecisionLetters;
+      relatedDocumentIds; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+  - tool: Claims.GetBPSAssessment
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API / Rehab API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=bps-assessment
+    inputDataRequired: claimId
+    outputDataRequired: 'bpsAssessments: documentId; assessmentDate; biologicalFactors; psychologicalFactors; socialFactors;
+      impactOnRTW; sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetClaimAuditHistory
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims Audit API
+    candidateEndpointOrOperation: GET /claims/{claimId}/audit?fields={fieldNames}
+    inputDataRequired: claimId; fieldNames[]; dateRange optional
+    outputDataRequired: 'auditEvents: eventId; fieldName; oldValue; newValue; changedBy; changedAt; sourceReference'
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Claims.GetClaimDetails
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}
+    inputDataRequired: claimId
+    outputDataRequired: claimId; policyId; customerId; claimStatus; claimType; dateOfLoss; claimStartDate; benefitStartDate;
+      benefitEndDate; assignedCaseManager; sourceReference
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Claims.GetClaimDuration
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}/dates
+    inputDataRequired: claimId; asAtDate
+    outputDataRequired: claimStartDate; asAtDate; currentDurationInDays; currentDurationInMonths; milestoneDates
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetClaimKeyDates
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API / Indexation API
+    candidateEndpointOrOperation: GET /claims/{claimId}/key-dates; GET /claims/{claimId}/indexation
+    inputDataRequired: claimId; reviewAsAtDate
+    outputDataRequired: dateOfLoss; benefitEndDate; claimDurationExpiryDate; changeOfDefinitionDate; cpiIndexationDate; pdiIndexationDate;
+      missingFields; inconsistentFields; sourceReference
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Claims.GetClaimPeriod
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}/period
+    inputDataRequired: claimId; reviewAsAtDate
+    outputDataRequired: claimStartDate; claimEndDate; reviewAsAtDate; comparisonPeriodStart; comparisonPeriodEnd
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Claims.GetComplaintHistory
+    owningMcpServer: claims-mcp-server
+    candidateApi: Complaint API
+    candidateEndpointOrOperation: GET /claims/{claimId}/complaints; GET /customers/{customerId}/complaints?claimId={claimId}
+    inputDataRequired: claimId; customerId optional
+    outputDataRequired: 'complaints: complaintId; openedDate; closedDate; status; issue; outcome; outstandingActions; sourceReference'
+    allowedSkills:
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetComplaintOutcomeLetters
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API / Complaint API
+    candidateEndpointOrOperation: GET /claims/{claimId}/complaints/{complaintId}/outcome-letters
+    inputDataRequired: claimId; complaintId
+    outputDataRequired: 'outcomeLetters: documentId; letterDate; outcome; sourceReference'
+    allowedSkills:
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetDecisionLetters
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API
+    candidateEndpointOrOperation: GET /claims/{claimId}/decision-letters
+    inputDataRequired: claimId; assessmentId optional
+    outputDataRequired: 'decisionLetters: documentId; letterDate; decisionType; summary; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+  - tool: Claims.GetDeclaredWorkStatus
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}/work-declarations
+    inputDataRequired: claimId
+    outputDataRequired: declaredWorkingStatus; declaredBusinessActivity; declaredIncome; lastDeclarationDate; sourceReference
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Claims.GetDisputeRecords
+    owningMcpServer: claims-mcp-server
+    candidateApi: Dispute API
+    candidateEndpointOrOperation: GET /claims/{claimId}/disputes
+    inputDataRequired: claimId
+    outputDataRequired: 'disputes: disputeId; openedDate; status; issue; outcome; outstandingActions; sourceReference'
+    allowedSkills:
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetFunctionalCapacityAssessment
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API / Medical Evidence API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=functional-capacity
+    inputDataRequired: claimId; dateRange optional
+    outputDataRequired: 'assessments: documentId; assessmentDate; provider; functionalLimitations; capacityOpinion; sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetHandoverNotes
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API / Notes API
+    candidateEndpointOrOperation: GET /claims/{claimId}/handover-notes
+    inputDataRequired: claimId
+    outputDataRequired: 'handoverNotes: noteId; createdDate; createdBy; summary; sourceReference'
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.GetLiabilityReviewDocuments
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=liability
+    inputDataRequired: claimId
+    outputDataRequired: 'liabilityDocuments: documentId; documentDate; liabilityIssue; status; summary; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+  - tool: Claims.GetMedicalEvidence
+    owningMcpServer: claims-mcp-server
+    candidateApi: Medical Evidence API + Document API + OCR/Extraction API
+    candidateEndpointOrOperation: GET /claims/{claimId}/medical-evidence; GET /documents?claimId={claimId}&category=medical;
+      GET /ocr/extractions?documentIds={ids}
+    inputDataRequired: claimId; evidenceTypes[]; dateRangeStart; dateRangeEnd
+    outputDataRequired: 'medicalEvidence: documentId; documentType; documentDate; provider; diagnosis; restrictions; capacityStatement;
+      prognosis; sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetNoticeOfAssessmentDocuments
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=notice-of-assessment
+    inputDataRequired: claimId; financialYear optional
+    outputDataRequired: 'noticeOfAssessmentDocuments: documentId; financialYear; documentDate; summary; sourceReference'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Claims.GetOccupationDetails
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API / Occupation API
+    candidateEndpointOrOperation: GET /claims/{claimId}/occupation
+    inputDataRequired: claimId
+    outputDataRequired: occupationTitle; employer; employmentStatusAtClaim; roleDuties; physicalRequirements; cognitiveRequirements;
+      hoursWorked; sourceReference
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetOpenTasks
+    owningMcpServer: claims-mcp-server
+    candidateApi: Case Task API
+    candidateEndpointOrOperation: GET /claims/{claimId}/tasks?status=open
+    inputDataRequired: claimId; taskCategoryFilter[] optional; status=open
+    outputDataRequired: 'openTasks: taskId; taskType; description; owner; dueDate; status; priority; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetRehabHistory
+    owningMcpServer: claims-mcp-server
+    candidateApi: Rehab API / Claims Activity API
+    candidateEndpointOrOperation: GET /claims/{claimId}/rehab-activities; GET /claims/{claimId}/rtw-plans
+    inputDataRequired: claimId; dateRangeStart; dateRangeEnd
+    outputDataRequired: 'rehabActivities: activityId; activityDate; activityType; provider; outcome; nextAction; status; sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetReinsuranceHistory
+    owningMcpServer: claims-mcp-server
+    candidateApi: Reinsurance API / Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}/reinsurance
+    inputDataRequired: claimId
+    outputDataRequired: 'reinsuranceRecords: recordId; recordDate; reinsurer; status; handbackConfirmed; handbackDate; notes;
+      sourceReference'
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.GetRemediationActions
+    owningMcpServer: claims-mcp-server
+    candidateApi: Remediation API
+    candidateEndpointOrOperation: GET /claims/{claimId}/remediations
+    inputDataRequired: claimId; complaintId optional
+    outputDataRequired: 'remediationActions: remediationId; actionType; status; completionDate; owner; sourceReference'
+    allowedSkills:
+    - Claims.ComplaintAndRemediationValidation
+  - tool: Claims.GetSpecialHandlingInstructions
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: GET /claims/{claimId}/special-handling
+    inputDataRequired: claimId
+    outputDataRequired: 'specialHandlingInstructions: instructionId; instructionType; description; effectiveDate; status;
+      sourceReference'
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.GetTPADetails
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API / TPA API
+    candidateEndpointOrOperation: GET /claims/{claimId}/tpa
+    inputDataRequired: claimId
+    outputDataRequired: tpaName; tpaContact; arrangementDescription; effectiveDate; sourceReference
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.GetTaxReturnDocuments
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=tax-return
+    inputDataRequired: claimId; financialYear optional
+    outputDataRequired: 'taxReturnDocuments: documentId; financialYear; documentDate; summary; sourceReference'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Claims.GetTreatingDoctorReports
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API / Medical Evidence API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=treating-doctor-report
+    inputDataRequired: claimId; dateRangeStart; dateRangeEnd
+    outputDataRequired: 'reports: documentId; reportDate; provider; diagnosis; restrictions; prognosis; sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.GetVocationalAssessment
+    owningMcpServer: claims-mcp-server
+    candidateApi: Document API / Vocational API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=vocational-assessment
+    inputDataRequired: claimId
+    outputDataRequired: 'vocationalAssessments: documentId; assessmentDate; education; training; experience; alternativeWorkOptions;
+      sourceReference'
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Claims.SearchClaimNotes
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claim Notes Search API
+    candidateEndpointOrOperation: POST /claims/{claimId}/notes/search
+    inputDataRequired: claimId; searchTerms[]; dateRangeStart; dateRangeEnd; maxResults
+    outputDataRequired: 'matchingNotes: noteId; noteDate; author; matchedTerms; noteSnippet; noteCategory; sourceReference;
+      totalMatches'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+    - Claims.ReturnToWorkAssessment
+    - Claims.ComplaintAndRemediationValidation
+    - Claims.FinancialReconciliationValidation
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Claims.UpdateClaimField
+    owningMcpServer: claims-mcp-server
+    candidateApi: Claims API
+    candidateEndpointOrOperation: PATCH /claims/{claimId}/fields/{fieldName}
+    inputDataRequired: claimId; fieldName; newValue; reason; approvalReference
+    outputDataRequired: updateStatus; updatedField; previousValue; newValue; auditReference
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Customer.GetCommunicationPreferences
+    owningMcpServer: customer-communication-mcp-server
+    candidateApi: Customer Preference API
+    candidateEndpointOrOperation: GET /customers/{customerId}/communication-preferences
+    inputDataRequired: customerId
+    outputDataRequired: preferredChannel; preferredContactTime; accessibilityRequirements; representativeDetails; sourceReference
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Customer.GetCustomerContactProfile
+    owningMcpServer: customer-communication-mcp-server
+    candidateApi: Customer API / Representative API
+    candidateEndpointOrOperation: GET /customers/{customerId}/contact-profile; GET /customers/{customerId}/representatives
+    inputDataRequired: customerId
+    outputDataRequired: 'contactDetails: phoneNumber; emailAddress; address; authorisedRepresentatives: representativeName;
+      relationshipType; authorityStatus; sourceReference'
+    allowedSkills:
+    - Claims.ReinsuranceAndHandoverValidation
+  - tool: Customer.GetCustomerProfile
+    owningMcpServer: customer-communication-mcp-server
+    candidateApi: Customer API
+    candidateEndpointOrOperation: GET /customers/{customerId}/profile
+    inputDataRequired: customerId; purpose; minimumNecessaryFields[] optional
+    outputDataRequired: customerId; fullName; dateOfBirth; address; postcode; emailAddress; phoneNumber; sourceReference
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.AddressSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Address Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/address/search
+    inputDataRequired: address; postcode; searchPurpose
+    outputDataRequired: 'addressFindings: findingType; description; url; confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.BusinessActivitySearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Business Activity Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/business-activity/search
+    inputDataRequired: customerName; address; claimStartDate; reviewAsAtDate; searchPurpose
+    outputDataRequired: 'businessActivityFindings: businessName; activityIndicator; activeDuringClaimPeriod; evidenceUrl;
+      confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.EmailSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Email Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/email/search
+    inputDataRequired: emailAddress; searchPurpose
+    outputDataRequired: 'emailFindings: findingType; description; url; confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.GoogleMapsSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Maps Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/maps/search
+    inputDataRequired: address; businessName optional; searchPurpose
+    outputDataRequired: 'mapsFindings: placeName; address; category; url; confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.InternetSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Enterprise Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/web/search
+    inputDataRequired: searchTerms[]; claimId; searchPurpose; maxResults
+    outputDataRequired: 'searchResults: title; url; snippet; resultType; relevanceScore; retrievedAt; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.PhoneNumberSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Phone Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/phone/search
+    inputDataRequired: phoneNumber; searchPurpose
+    outputDataRequired: 'phoneFindings: findingType; description; url; confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.SearchABNLookup
+    owningMcpServer: investigation-mcp-server
+    candidateApi: ABN Lookup Adapter API
+    candidateEndpointOrOperation: POST /investigation/abn/search
+    inputDataRequired: customerName; postcode; address; claimStartDate; reviewAsAtDate; searchPurpose
+    outputDataRequired: 'abnMatches: entityName; abn; businessStatus; registrationDate; cancellationDate; postcode; matchConfidence;
+      activeDuringClaimPeriod; sourceUrl; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.SearchEquifax
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Equifax Adapter API
+    candidateEndpointOrOperation: POST /investigation/equifax/search
+    inputDataRequired: customerName; dateOfBirth; address; postcode; searchPurpose
+    outputDataRequired: 'equifaxMatches: matchType; entityName; address; businessAssociation; businessStatus; matchConfidence;
+      sourceReference; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Investigation.SocialMediaSearch
+    owningMcpServer: investigation-mcp-server
+    candidateApi: Social Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/social/search
+    inputDataRequired: customerName; location; searchTerms[]; searchPurpose
+    outputDataRequired: 'socialFindings: platformOrSource; url; snippet; possibleRelevance; confidenceScore; searchAuditId'
+    allowedSkills:
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+  - tool: Payments.GetDisbursalStatus
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/underpayments/{underpaymentId}/disbursal-status
+    inputDataRequired: underpaymentId
+    outputDataRequired: underpaymentId; disbursalStatus; disbursalDate; amount; sourceReference
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetOverpaymentRecords
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments / Recovery API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/overpayments
+    inputDataRequired: claimId
+    outputDataRequired: 'overpayments: overpaymentId; amount; identifiedDate; status; recoveryPlanId; sourceReference'
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetPaymentAdjustmentHistory
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/adjustments
+    inputDataRequired: claimId; startDate; endDate
+    outputDataRequired: 'adjustments: adjustmentId; adjustmentDate; adjustmentType; amount; reason; sourceReference'
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetPaymentHistory
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/history?startDate={start}&endDate={end}
+    inputDataRequired: claimId; startDate; endDate
+    outputDataRequired: 'payments: paymentId; paymentDate; amount; paymentType; status; sourceReference'
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetPaymentStatus
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/status?asAtDate={date}
+    inputDataRequired: claimId; asAtDate
+    outputDataRequired: paymentStatus; lastPaymentDate; nextScheduledPaymentDate; arrearsDetected; issueDescription; sourceReference
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Payments.GetReconciliationRecords
+    owningMcpServer: payments-mcp-server
+    candidateApi: Reconciliation API
+    candidateEndpointOrOperation: GET /reconciliations/claims/{claimId}
+    inputDataRequired: claimId; reviewPeriodStartDate; reviewPeriodEndDate
+    outputDataRequired: 'reconciliations: reconciliationId; periodStart; periodEnd; status; completionDate; outcome; sourceReference'
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetRecoveryPlan
+    owningMcpServer: payments-mcp-server
+    candidateApi: Recovery API
+    candidateEndpointOrOperation: GET /recoveries/{recoveryPlanId}
+    inputDataRequired: recoveryPlanId
+    outputDataRequired: recoveryPlanId; recoveryPlanStatus; agreedAmount; repaymentFrequency; nextActionDate; sourceReference
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.GetScheduledPayments
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/scheduled
+    inputDataRequired: claimId
+    outputDataRequired: 'scheduledPayments: scheduledPaymentId; scheduledDate; amount; status; approvalStatus; sourceReference'
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Payments.GetUnderpaymentRecords
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: GET /payments/claims/{claimId}/underpayments
+    inputDataRequired: claimId
+    outputDataRequired: 'underpayments: underpaymentId; amount; identifiedDate; status; disbursalDate; sourceReference'
+    allowedSkills:
+    - Claims.FinancialReconciliationValidation
+  - tool: Payments.SchedulePayment
+    owningMcpServer: payments-mcp-server
+    candidateApi: Payments API
+    candidateEndpointOrOperation: POST /payments/claims/{claimId}/scheduled
+    inputDataRequired: claimId; amount; paymentDate; paymentReason; approvalReference
+    outputDataRequired: scheduledPaymentId; status; approvalRequired; auditReference
+    allowedSkills:
+    - Claims.DataIntegrityReview
+  - tool: Policy.GetBenefitDefinition
+    owningMcpServer: policy-mcp-server
+    candidateApi: Policy API / Product Rules API
+    candidateEndpointOrOperation: GET /policies/{policyId}/benefits/{benefitCode}/definition
+    inputDataRequired: policyId; benefitCode; effectiveDate
+    outputDataRequired: benefitName; benefitDefinition; benefitEndRules; clauseReference; sourceReference
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Policy.GetEligibilityDefinitions
+    owningMcpServer: policy-mcp-server
+    candidateApi: Policy / Product Rules API
+    candidateEndpointOrOperation: GET /policies/{policyId}/eligibility-definitions?claimType={claimType}
+    inputDataRequired: policyId; claimType; effectiveDate
+    outputDataRequired: 'eligibilityDefinitions: definitionName; definitionText; clauseReference; sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
+  - tool: Policy.GetOccupationDefinition
+    owningMcpServer: policy-mcp-server
+    candidateApi: Policy API / Product Rules API
+    candidateEndpointOrOperation: GET /policies/{policyId}/occupation-definition?definitionDate={date}
+    inputDataRequired: policyId; definitionDate; definitionType optional
+    outputDataRequired: definitionType; wording; appliesFromDate; appliesToDate; clauseReference; sourceReference
+    allowedSkills:
+    - Claims.ReturnToWorkAssessment
+  - tool: Policy.GetPolicyTerms
+    owningMcpServer: policy-mcp-server
+    candidateApi: Policy API
+    candidateEndpointOrOperation: GET /policies/{policyId}/terms?effectiveDate={date}
+    inputDataRequired: policyId; claimId optional; effectiveDate
+    outputDataRequired: 'policyNumber; productName; policyStatus; effectiveDate; relevantTerms: termName; termText; clauseReference;
+      sourceReference'
+    allowedSkills:
+    - Claims.EligibilityAndLiabilityValidation
