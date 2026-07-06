@@ -1,0 +1,44 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-getfunctionalcapacityassessment
+  displayName: Claims.GetFunctionalCapacityAssessment
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: Read
+  description: Document API / Medical Evidence API
+  allowedSkills:
+  - Claims.ReturnToWorkAssessment
+  inputData: claimId; dateRange optional
+  outputData: 'assessments: documentId; assessmentDate; provider; functionalLimitations; capacityOpinion; sourceReference'
+  backendApiMappings:
+  - apiName: Document API / Medical Evidence API
+    candidateEndpointOrOperation: GET /documents?claimId={claimId}&category=functional-capacity
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
