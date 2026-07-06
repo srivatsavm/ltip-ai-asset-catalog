@@ -1,0 +1,46 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: customer-getcommunicationpreferences
+  displayName: Customer.GetCommunicationPreferences
+  domain: Customer Communication
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: customer-communication-mcp-server
+  mode: ReadPII
+  description: Customer Preference API
+  allowedSkills:
+  - Claims.ReinsuranceAndHandoverValidation
+  inputData: customerId
+  outputData: preferredChannel; preferredContactTime; accessibilityRequirements; representativeDetails; sourceReference
+  backendApiMappings:
+  - apiName: Customer Preference API
+    candidateEndpointOrOperation: GET /customers/{customerId}/communication-preferences
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - minimumNecessaryPII
+  - purposeLimitation
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
