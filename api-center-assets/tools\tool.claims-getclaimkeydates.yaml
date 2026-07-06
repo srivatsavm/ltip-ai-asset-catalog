@@ -1,0 +1,45 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-getclaimkeydates
+  displayName: Claims.GetClaimKeyDates
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: Read
+  description: Claims API / Indexation API
+  allowedSkills:
+  - Claims.DataIntegrityReview
+  inputData: claimId; reviewAsAtDate
+  outputData: dateOfLoss; benefitEndDate; claimDurationExpiryDate; changeOfDefinitionDate; cpiIndexationDate; pdiIndexationDate;
+    missingFields; inconsistentFields; sourceReference
+  backendApiMappings:
+  - apiName: Claims API / Indexation API
+    candidateEndpointOrOperation: GET /claims/{claimId}/key-dates; GET /claims/{claimId}/indexation
+    mappingPattern: multi-api orchestration in MCP tool handler
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
