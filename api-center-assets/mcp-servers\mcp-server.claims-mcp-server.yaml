@@ -1,0 +1,62 @@
+apiVersion: aia.aiassets/v1
+kind: McpServer
+metadata:
+  name: claims-mcp-server
+  displayName: Claims MCP Server
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  endpoint: https://<apim-host>/mcp/claims
+  recommendedRuntime: Azure Function App or Azure Container App
+  owner: Claims Technology
+  classification: Internal - Sensitive / Health / PII
+  authentication: Microsoft Entra ID / Managed Identity
+  frontDoor: Azure API Management
+  networking: Private endpoint preferred; public ingress only via APIM where required
+  tools:
+  - Claims.GetClaimDetails
+  - Claims.GetClaimKeyDates
+  - Claims.GetClaimAuditHistory
+  - Claims.UpdateClaimField
+  - Claims.GetAssessmentHistory
+  - Claims.SearchClaimNotes
+  - Claims.GetOpenTasks
+  - Claims.GetDecisionLetters
+  - Claims.GetLiabilityReviewDocuments
+  - Claims.GetAdvocateCorrespondence
+  - Claims.GetMedicalEvidence
+  - Claims.GetRehabHistory
+  - Claims.GetClaimDuration
+  - Claims.GetOccupationDetails
+  - Claims.GetFunctionalCapacityAssessment
+  - Claims.GetTreatingDoctorReports
+  - Claims.GetVocationalAssessment
+  - Claims.GetBPSAssessment
+  - Claims.GetClaimPeriod
+  - Claims.GetDeclaredWorkStatus
+  - Claims.GetTaxReturnDocuments
+  - Claims.GetNoticeOfAssessmentDocuments
+  - Claims.GetComplaintHistory
+  - Claims.GetRemediationActions
+  - Claims.GetComplaintOutcomeLetters
+  - Claims.GetDisputeRecords
+  - Claims.GetReinsuranceHistory
+  - Claims.GetSpecialHandlingInstructions
+  - Claims.GetTPADetails
+  - Claims.GetHandoverNotes
+  - Claims.GenerateHandoverSummary
+  auditAndObservability:
+    applicationInsights: true
+    logAnalytics: true
+    auditEvents:
+    - toolInvocationStart
+    - toolInvocationComplete
+    - accessDenied
+    - backendFailure
+  deploymentValidation:
+  - All tools have input/output contracts
+  - All tools have allowedSkills
+  - External tools enforce human review
+  - Write tools require approval controls
