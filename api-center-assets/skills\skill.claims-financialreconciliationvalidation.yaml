@@ -1,0 +1,74 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-financialreconciliationvalidation
+  displayName: Claims.FinancialReconciliationValidation
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Confirm reconciliations, underpayments, overpayments and recovery actions are complete or appropriately managed.
+  businessQuestion: Are all payment reconciliations and financial actions complete before transfer?
+  riskLevel: High
+  requiredTools:
+  - Payments.GetPaymentHistory
+  - Payments.GetReconciliationRecords
+  - Payments.GetOverpaymentRecords
+  - Payments.GetUnderpaymentRecords
+  - Claims.SearchClaimNotes
+  optionalTools:
+  - Payments.GetRecoveryPlan
+  - Payments.GetDisbursalStatus
+  - Payments.GetPaymentAdjustmentHistory
+  inputs:
+    claimId: string
+    policyId: string
+    reviewPeriodStartDate: date
+    reviewPeriodEndDate: date
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    reconciliationStatus: string
+    overpaymentStatus: string
+    underpaymentStatus: string
+    financialOutstandingActions: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve payment history.
+  - Retrieve reconciliations.
+  - Retrieve overpayments and underpayments.
+  - Validate recovery plans and disbursal where applicable.
+  - Search notes for unresolved financial actions.
+  - Return financial readiness status.
+  promptTemplate: Validate financial reconciliation readiness using payment, reconciliation, underpayment, overpayment and
+    claim note evidence only.
+  decisionCriteria:
+    pass:
+    - Reconciliations finalised
+    - No unresolved underpayment
+    - No unresolved overpayment or approved recovery plan active
+    fail:
+    - Incomplete reconciliation
+    - Outstanding underpayment
+    - Unresolved overpayment
+    insufficientEvidence:
+    - Payment or reconciliation records unavailable
+  allowedMcpServers:
+  - claims-mcp-server
+  - payments-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
