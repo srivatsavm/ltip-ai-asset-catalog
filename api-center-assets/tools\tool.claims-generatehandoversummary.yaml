@@ -1,0 +1,47 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-generatehandoversummary
+  displayName: Claims.GenerateHandoverSummary
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: DraftRestricted
+  description: Optional Handover Draft API
+  allowedSkills:
+  - Claims.ReinsuranceAndHandoverValidation
+  inputData: claimId; skillFindings[]; evidenceReferences[]; approvalReference optional if persisting
+  outputData: handoverSummary; criticalInformation[]; outstandingActions[]; sourceReferences[]; draftId optional
+  backendApiMappings:
+  - apiName: Optional Handover Draft API
+    candidateEndpointOrOperation: Optional POST /claims/{claimId}/handover-summary/draft
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - humanApprovalRequired
+  - roleBasedAuthorityValidation
+  - beforeAfterAudit
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
