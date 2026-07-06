@@ -1,0 +1,90 @@
+apiVersion: aia.aiassets/v1
+kind: Agent
+metadata:
+  name: claim-stability-review-agent
+  displayName: Claim Stability Review Agent
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Determine whether a claim is suitable for stable long-term management by executing governed claims skills and producing
+    an evidence-backed recommendation.
+  runtime:
+    target: Azure AI Foundry Agent Service or custom agent runtime
+    multiChannel: true
+    channels:
+    - Copilot Studio
+    - Appian
+    - Claims Portal
+    - Supervisor Workbench
+    - Batch Processing
+  inputs:
+    claimId: string
+    policyId: string
+    customerId: string
+    reviewAsAtDate: date
+    requestingChannel: string
+    requestingUser: string
+  outputs:
+  - recommendation
+  - decisionStatus
+  - reviewSummary
+  - evidencePack
+  - outstandingActions
+  - riskFlags
+  - handoverSummary
+  - humanReviewRequired
+  workflow:
+  - sequence: 1
+    skill: Claims.DataIntegrityReview
+    onFailure: return controlled status and escalate where required
+  - sequence: 2
+    skill: Claims.EligibilityAndLiabilityValidation
+    onFailure: return controlled status and escalate where required
+  - sequence: 3
+    skill: Claims.ReturnToWorkAssessment
+    onFailure: return controlled status and escalate where required
+  - sequence: 4
+    skill: Claims.InvestigationAndUndisclosedWorkAssessment
+    onFailure: return controlled status and escalate where required
+  - sequence: 5
+    skill: Claims.ComplaintAndRemediationValidation
+    onFailure: return controlled status and escalate where required
+  - sequence: 6
+    skill: Claims.FinancialReconciliationValidation
+    onFailure: return controlled status and escalate where required
+  - sequence: 7
+    skill: Claims.ReinsuranceAndHandoverValidation
+    onFailure: return controlled status and escalate where required
+  decisionAggregationRules:
+  - if: any mandatory skill returns Fail
+    then: Not suitable - outstanding actions remain
+  - if: Investigation skill returns FurtherInvestigationRequired
+    then: Not suitable - further investigation required
+  - if: any mandatory skill returns InsufficientEvidence
+    then: Insufficient evidence - human review required
+  - if: all mandatory skills return Pass
+    then: Suitable for stable long-term management
+  dependencies:
+    skills:
+    - Claims.DataIntegrityReview
+    - Claims.EligibilityAndLiabilityValidation
+    - Claims.ReturnToWorkAssessment
+    - Claims.InvestigationAndUndisclosedWorkAssessment
+    - Claims.ComplaintAndRemediationValidation
+    - Claims.FinancialReconciliationValidation
+    - Claims.ReinsuranceAndHandoverValidation
+    mcpServers:
+    - claims-mcp-server
+    - policy-mcp-server
+    - payments-mcp-server
+    - investigation-mcp-server
+    - customer-communication-mcp-server
+  guardrails:
+    evidenceGrounding: required
+    humanReviewForAdverseOutcome: true
+    humanReviewForLowConfidence: true
+    minimumConfidenceForDraftRecommendation: 0.7
+    noAutomatedAdverseDecisionForInvestigationFindings: true
+    piiAccess: leastPrivilege
