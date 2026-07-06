@@ -1,0 +1,44 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: policy-getbenefitdefinition
+  displayName: Policy.GetBenefitDefinition
+  domain: Policy
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: policy-mcp-server
+  mode: Read
+  description: Policy API / Product Rules API
+  allowedSkills:
+  - Claims.ReturnToWorkAssessment
+  inputData: policyId; benefitCode; effectiveDate
+  outputData: benefitName; benefitDefinition; benefitEndRules; clauseReference; sourceReference
+  backendApiMappings:
+  - apiName: Policy API / Product Rules API
+    candidateEndpointOrOperation: GET /policies/{policyId}/benefits/{benefitCode}/definition
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
