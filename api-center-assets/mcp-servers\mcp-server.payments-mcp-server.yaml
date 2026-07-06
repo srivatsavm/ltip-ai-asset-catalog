@@ -1,0 +1,41 @@
+apiVersion: aia.aiassets/v1
+kind: McpServer
+metadata:
+  name: payments-mcp-server
+  displayName: Payments MCP Server
+  domain: Payments
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  endpoint: https://<apim-host>/mcp/payments
+  recommendedRuntime: Azure Function App or Azure Container App
+  owner: Payments Technology
+  classification: Restricted - Financial / PII
+  authentication: Microsoft Entra ID / Managed Identity
+  frontDoor: Azure API Management
+  networking: Private endpoint preferred; public ingress only via APIM where required
+  tools:
+  - Payments.GetPaymentStatus
+  - Payments.GetScheduledPayments
+  - Payments.SchedulePayment
+  - Payments.GetPaymentHistory
+  - Payments.GetReconciliationRecords
+  - Payments.GetOverpaymentRecords
+  - Payments.GetUnderpaymentRecords
+  - Payments.GetRecoveryPlan
+  - Payments.GetDisbursalStatus
+  - Payments.GetPaymentAdjustmentHistory
+  auditAndObservability:
+    applicationInsights: true
+    logAnalytics: true
+    auditEvents:
+    - toolInvocationStart
+    - toolInvocationComplete
+    - accessDenied
+    - backendFailure
+  deploymentValidation:
+  - All tools have input/output contracts
+  - All tools have allowedSkills
+  - External tools enforce human review
+  - Write tools require approval controls
