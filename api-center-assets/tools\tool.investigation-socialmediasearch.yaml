@@ -1,0 +1,49 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: investigation-socialmediasearch
+  displayName: Investigation.SocialMediaSearch
+  domain: Investigation
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: investigation-mcp-server
+  mode: ExternalSearch
+  description: Social Search Adapter API
+  allowedSkills:
+  - Claims.InvestigationAndUndisclosedWorkAssessment
+  inputData: customerName; location; searchTerms[]; searchPurpose
+  outputData: 'socialFindings: platformOrSource; url; snippet; possibleRelevance; confidenceScore; searchAuditId'
+  backendApiMappings:
+  - apiName: Social Search Adapter API
+    candidateEndpointOrOperation: POST /investigation/social/search
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - searchPurposeRequired
+  - searchTermsLogged
+  - sourceUrlsLogged
+  - humanReviewForAdverseIndicators
+  - noAutomatedAdverseDecision
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
