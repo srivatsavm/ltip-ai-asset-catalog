@@ -1,0 +1,44 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: claims-getremediationactions
+  displayName: Claims.GetRemediationActions
+  domain: Claims
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: claims-mcp-server
+  mode: Read
+  description: Remediation API
+  allowedSkills:
+  - Claims.ComplaintAndRemediationValidation
+  inputData: claimId; complaintId optional
+  outputData: 'remediationActions: remediationId; actionType; status; completionDate; owner; sourceReference'
+  backendApiMappings:
+  - apiName: Remediation API
+    candidateEndpointOrOperation: GET /claims/{claimId}/remediations
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
