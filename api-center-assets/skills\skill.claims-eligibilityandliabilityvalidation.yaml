@@ -1,0 +1,80 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-eligibilityandliabilityvalidation
+  displayName: Claims.EligibilityAndLiabilityValidation
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Validate prior assessment decisions, policy terms, eligibility concerns, liability issues, investigations, complaints
+    and advocate-related actions are resolved.
+  businessQuestion: Are there unresolved eligibility or liability issues that prevent stable long-term management?
+  riskLevel: High
+  requiredTools:
+  - Claims.GetAssessmentHistory
+  - Claims.SearchClaimNotes
+  - Claims.GetOpenTasks
+  - Policy.GetPolicyTerms
+  - Policy.GetEligibilityDefinitions
+  optionalTools:
+  - Claims.GetDecisionLetters
+  - Claims.GetLiabilityReviewDocuments
+  - Claims.GetAdvocateCorrespondence
+  inputs:
+    claimId: string
+    policyId: string
+    reviewAsAtDate: date
+    searchTerms:
+    - Eligibility
+    - liability
+    - investigation
+    - complaint
+    - advocate
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    eligibilityStatus: string
+    liabilityStatus: string
+    unresolvedIssues: array
+    assessmentHistorySummary: string
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve assessment history.
+  - Retrieve policy terms and eligibility definitions.
+  - Search notes for eligibility/liability/investigation/complaint/advocate.
+  - Check open tasks.
+  - Classify issues as closed history or unresolved actions.
+  - Return readiness status.
+  promptTemplate: Validate eligibility and liability readiness using claim history, notes, tasks and policy evidence only.
+    Separate historical references from unresolved actions.
+  decisionCriteria:
+    pass:
+    - No unresolved eligibility issues
+    - No unresolved liability issues
+    - No relevant open tasks
+    fail:
+    - Open eligibility/liability investigation
+    - Open advocate/complaint/investigation task
+    - Conflicting prior decisions
+    insufficientEvidence:
+    - Assessment history or policy terms unavailable
+  allowedMcpServers:
+  - claims-mcp-server
+  - policy-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
