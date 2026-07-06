@@ -1,0 +1,72 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-reinsuranceandhandovervalidation
+  displayName: Claims.ReinsuranceAndHandoverValidation
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Confirm reinsurer handback/sign-off and capture operational handover details.
+  businessQuestion: Is reinsurance handback complete and is the claim ready for operational handover?
+  riskLevel: Medium
+  requiredTools:
+  - Claims.GetReinsuranceHistory
+  - Claims.SearchClaimNotes
+  - Customer.GetCommunicationPreferences
+  - Claims.GetSpecialHandlingInstructions
+  optionalTools:
+  - Claims.GetTPADetails
+  - Claims.GetHandoverNotes
+  - Claims.GenerateHandoverSummary
+  - Customer.GetCustomerContactProfile
+  inputs:
+    claimId: string
+    customerId: string
+    reviewAsAtDate: date
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    reinsuranceStatus: string
+    handoverReadinessStatus: string
+    handoverSummary: object
+    outstandingHandoverActions: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve reinsurance history.
+  - Search notes for reinsurance/handback.
+  - Retrieve communication preferences and special handling instructions.
+  - Retrieve TPA/contact details where needed.
+  - Generate handover summary.
+  - Return handover readiness.
+  promptTemplate: Validate reinsurance and handover readiness. Do not assume reinsurer handback unless source evidence confirms
+    it.
+  decisionCriteria:
+    pass:
+    - Handback confirmed or not applicable
+    - Communication preferences captured
+    - Special handling/TPA details captured where applicable
+    fail:
+    - Handback pending
+    - Handover details incomplete
+    insufficientEvidence:
+    - Reinsurance or communication source unavailable
+  allowedMcpServers:
+  - claims-mcp-server
+  - customer-communication-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
