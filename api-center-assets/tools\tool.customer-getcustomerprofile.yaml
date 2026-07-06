@@ -1,0 +1,47 @@
+apiVersion: aia.aiassets/v1
+kind: McpTool
+metadata:
+  name: customer-getcustomerprofile
+  displayName: Customer.GetCustomerProfile
+  domain: Customer Communication
+  version: 1.0.0
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  owningMcpServer: customer-communication-mcp-server
+  mode: ReadPII
+  description: Customer API
+  allowedSkills:
+  - Claims.ReturnToWorkAssessment
+  - Claims.InvestigationAndUndisclosedWorkAssessment
+  inputData: customerId; purpose; minimumNecessaryFields[] optional
+  outputData: customerId; fullName; dateOfBirth; address; postcode; emailAddress; phoneNumber; sourceReference
+  backendApiMappings:
+  - apiName: Customer API
+    candidateEndpointOrOperation: GET /customers/{customerId}/profile
+    mappingPattern: single endpoint
+  handler:
+    recommendedRuntime: Azure Function handler or Container App route
+    orchestrationResponsibilities:
+    - validate input
+    - call backend API/API set through APIM
+    - normalise response
+    - attach source references
+    - emit audit event
+  controls:
+  - validateInputSchema
+  - validateCallerAgent
+  - validateInvokingSkill
+  - validatePurpose
+  - emitAuditStartAndEnd
+  - returnEvidenceReferences
+  - structuredErrors
+  - minimumNecessaryPII
+  - purposeLimitation
+  errorModel:
+  - ValidationError
+  - AccessDenied
+  - BackendUnavailable
+  - PartialResponse
+  - NotFound
+  - ConflictingSourceData
+  - HumanReviewRequired
