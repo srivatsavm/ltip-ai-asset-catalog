@@ -1,0 +1,71 @@
+apiVersion: aia.aiassets/v1
+kind: Skill
+metadata:
+  name: claims-dataintegrityreview
+  displayName: Claims.DataIntegrityReview
+  domain: Claims
+  version: 1.0.0
+  lifecycleStage: Pilot
+  generatedAt: '2026-07-03T21:18:07.107737+00:00'
+spec:
+  purpose: Validate claim data, key dates, payment status and manually maintained fields are accurate and current before transfer.
+  businessQuestion: Is the claim record sufficiently complete, accurate and current to support a stable long-term management
+    decision?
+  riskLevel: Medium
+  requiredTools:
+  - Claims.GetClaimDetails
+  - Claims.GetClaimKeyDates
+  - Payments.GetPaymentStatus
+  - Payments.GetScheduledPayments
+  optionalTools:
+  - Claims.GetClaimAuditHistory
+  - Claims.UpdateClaimField
+  - Payments.SchedulePayment
+  inputs:
+    claimId: string
+    policyId: string
+    reviewAsAtDate: date
+  outputs:
+    status: Pass|Fail|InsufficientEvidence
+    paymentStatus: string
+    fieldsReviewed: array
+    outstandingActions: array
+    rationale: string
+    confidenceScore: number
+    evidenceReferences: array
+  assessmentLogic:
+  - Retrieve claim details and key claim dates.
+  - Validate mandatory date and indexation fields.
+  - Retrieve payment status and scheduled payments.
+  - Identify gaps, stale values or open payment actions.
+  - Return Pass, Fail or Insufficient Evidence.
+  promptTemplate: Perform a claim data integrity review using only supplied claim and payment evidence. Do not infer missing
+    values. Return status, rationale, outstanding actions, evidence references and confidence.
+  decisionCriteria:
+    pass:
+    - Mandatory fields populated and consistent
+    - Payments up to date or validly explained
+    fail:
+    - Mandatory fields missing/inconsistent
+    - Payments not current
+    - Manual updates outstanding
+    insufficientEvidence:
+    - Required source unavailable
+    - Conflicting source values
+  allowedMcpServers:
+  - claims-mcp-server
+  - payments-mcp-server
+  evidenceRequirements:
+  - Every finding must include source references where available.
+  - Missing or conflicting evidence must be surfaced as warnings or insufficient evidence.
+  confidenceModel:
+    high: '>=0.90'
+    medium: 0.70-0.89
+    low: <0.70 triggers human review
+  auditRequirements:
+  - skillInvocationId
+  - agentCorrelationId
+  - toolsCalled
+  - evidenceReferences
+  - finalStatus
+  - confidenceScore
